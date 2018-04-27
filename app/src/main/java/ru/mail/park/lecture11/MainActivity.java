@@ -22,6 +22,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
+import static ru.mail.park.lecture11.TaskService.APPEND_LINE;
+
 public class MainActivity extends AppCompatActivity {
     private static final String ACTION_REMOVE_PROGRESS = "remove_progress";
     private NotificationManager manager;
@@ -38,7 +40,8 @@ public class MainActivity extends AppCompatActivity {
     private static final int NOTIFICATION_ID_IMAGE = 2;
     private static final int NOTIFICATION_ID_ONGOING = 3;
 
-    @BindView(R.id.edit_message) EditText messageEdit;
+    @BindView(R.id.edit_message)
+    EditText messageEdit;
 
     public int messageCount;
 
@@ -54,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
         initChannels();
 
         String action = getIntent().getAction();
-        if (! TextUtils.isEmpty(action))
+        if (!TextUtils.isEmpty(action))
             manager.cancel(NOTIFICATION_ID_ONGOING);
 
         String refreshedToken = FirebaseInstanceId.getInstance().getToken();
@@ -67,10 +70,10 @@ public class MainActivity extends AppCompatActivity {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_LIKES);
 
         builder.setSmallIcon(R.drawable.ic_like)
-        .setContentTitle(getString(R.string.user_name))
-        .setContentText(getString(R.string.new_like))
-        .setPriority(NotificationCompat.PRIORITY_LOW)
-        .setAutoCancel(true);
+                .setContentTitle(getString(R.string.user_name))
+                .setContentText(getString(R.string.new_like))
+                .setPriority(NotificationCompat.PRIORITY_LOW)
+                .setAutoCancel(true);
 
         addDefaultIntent(builder);
 
@@ -154,6 +157,11 @@ public class MainActivity extends AppCompatActivity {
         manager.notify(NOTIFICATION_ID_ONGOING, builder.build());
     }
 
+    @OnClick(R.id.button_task)
+    public void showTaskNotification() {
+        startService(new Intent(this, TaskService.class)
+                .setAction(APPEND_LINE));
+    }
 
     private void addMessageIntent(NotificationCompat.Builder builder, String message) {
 
@@ -169,7 +177,7 @@ public class MainActivity extends AppCompatActivity {
     private void addRemoveProgressIntent(NotificationCompat.Builder builder) {
 
         Intent contentIntent = new Intent(this, MainActivity.class);
-        contentIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK| Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        contentIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         contentIntent.setAction(ACTION_REMOVE_PROGRESS);
 
         int flags = PendingIntent.FLAG_CANCEL_CURRENT;
@@ -182,11 +190,10 @@ public class MainActivity extends AppCompatActivity {
     private void addDefaultIntent(NotificationCompat.Builder builder) {
 
         Intent contentIntent = new Intent(this, MainActivity.class);
-        contentIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        contentIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 
         int flags = PendingIntent.FLAG_UPDATE_CURRENT; // отменить старый и создать новый
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, contentIntent, flags);
-
 
 
         builder.setContentIntent(pendingIntent);
